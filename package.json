@@ -20,6 +20,7 @@
   "homepage": "https://github.com/osu-cs493-sp22/template-assignment-2#readme",
   "dependencies": {
     "express": "^4.17.3",
+    "mongodb": "^5.3.0",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
