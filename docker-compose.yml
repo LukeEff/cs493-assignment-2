@@ -1,13 +1,27 @@
-version: '3'
+version: '3.7'
+
 services:
-  web:
-    build: .
-    ports:
-      - "8000:8000"
-  database:
+  mongodb:
     image: mongo
+    restart: always
     ports:
       - "27017:27017"
     environment:
         - MONGO_INITDB_ROOT_USERNAME=root
         - MONGO_INITDB_ROOT_PASSWORD=letmein
+        - MONGO_INITDB_DATABASE=businessEcosystemDB
+    volumes:
+        - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_USER=root
+      - MONGO_PASSWORD=letmein
+      - MONGO_DB_NAME=businessEcosystemDB
+
