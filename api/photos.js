@@ -46,7 +46,7 @@ async function addPhoto(photo) {
       .insertOne(photo);
 }
 
-export async function getPhotosByUserID(id) {
+const getPhotosByUserID = async (id) => {
   return await global.db
       .collection('photos')
       .find({ userid: id })
@@ -137,3 +137,5 @@ router.delete('/:photoID', async function (req, res, next) {
     next();
   }
 });
+
+exports.getPhotosByUserID = getPhotosByUserID;

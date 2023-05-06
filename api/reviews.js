@@ -47,7 +47,7 @@ async function addReview(review) {
       .insertOne(review);
 }
 
-export async function getReviewsByUserID(id) {
+const getReviewsByUserID = async (id) => {
   return await global.db
       .collection('reviews')
       .find({ userid: id })
@@ -157,3 +157,5 @@ router.delete('/:reviewID', async function (req, res, next) {
     next();
   }
 });
+
+exports.getReviewsByUserID = getReviewsByUserID;

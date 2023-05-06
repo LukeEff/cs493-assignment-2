@@ -58,10 +58,11 @@ async function updateBusinessByID(id, business) {
       .updateOne({ id: id }, { $set: business });
 }
 
-export async function getBusinessesByOwnerID(id) {
+const getBusinessesByOwnerID = async (id) => {
   return await global.db
       .collection('businesses')
       .find({ ownerid: id })
+      .toArray();
 }
 
 /*
@@ -224,3 +225,6 @@ router.delete('/:businessid', async function (req, res, next) {
   }
    */
 });
+
+exports.getBusinessesByOwnerID = getBusinessesByOwnerID;
+
