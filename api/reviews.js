@@ -54,6 +54,13 @@ const getReviewsByUserID = async (id) => {
       .toArray();
 }
 
+const getReviewsByBusinessID = async (id) => {
+  return await global.db
+      .collection('reviews')
+      .find({ businessid: id })
+      .toArray();
+}
+
 
 /*
  * Route to create a new review.
@@ -159,3 +166,4 @@ router.delete('/:reviewID', async function (req, res, next) {
 });
 
 exports.getReviewsByUserID = getReviewsByUserID;
+exports.getReviewsByBusinessID = getReviewsByBusinessID;

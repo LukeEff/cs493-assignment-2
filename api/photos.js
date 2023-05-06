@@ -53,6 +53,13 @@ const getPhotosByUserID = async (id) => {
       .toArray();
 }
 
+const getPhotosByBusinessID = async (id) => {
+  return await global.db
+      .collection('photos')
+      .find({ businessid: id })
+      .toArray();
+}
+
 /*
  * Route to create a new photo.
  */
@@ -139,3 +146,4 @@ router.delete('/:photoID', async function (req, res, next) {
 });
 
 exports.getPhotosByUserID = getPhotosByUserID;
+exports.getPhotosByBusinessID = getPhotosByBusinessID;

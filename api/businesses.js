@@ -2,8 +2,8 @@ const router = require('express').Router();
 const { validateAgainstSchema, extractValidFields } = require('../lib/validation');
 
 const businesses = require('../data/businesses');
-const { reviews } = require('./reviews');
-const { photos } = require('./photos');
+const { getReviewsByBusinessID } = require('./reviews');
+const { getPhotosByBusinessID } = require('./photos');
 
 exports.router = router;
 exports.businesses = businesses;
@@ -140,15 +140,15 @@ router.post('/', async function (req, res, next) {
  */
 router.get('/:businessid', async function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
-  if (businesses[businessid]) {
+  if (await getBusinessByID(businessid)) {
     /*
      * Find all reviews and photos for the specified business and create a
      * new object containing all of the business data, including reviews and
      * photos.
      */
     const business = {
-      reviews: reviews.filter(review => review && review.businessid === businessid),
-      photos: photos.filter(photo => photo && photo.businessid === businessid)
+      reviews: await getReviewsByBusinessID(businessid),
+      photos: await getPhotosByBusinessID(businessid)
     };
     const businessDetails = await getBusinessByID(businessid);
     Object.assign(business, businessDetails);
@@ -182,27 +182,6 @@ router.put('/:businessid', async function (req, res, next) {
   } else {
     next();
   }
-  /*
-  if (businesses[businessid]) {
-
-    if (validateAgainstSchema(req.body, businessSchema)) {
-      businesses[businessid] = extractValidFields(req.body, businessSchema);
-      businesses[businessid].id = businessid;
-      res.status(200).json({
-        links: {
-          business: `/businesses/${businessid}`
-        }
-      });
-    } else {
-      res.status(400).json({
-        error: "Request body is not a valid business object"
-      });
-    }
-
-  } else {
-    next();
-  }
-   */
 });
 
 /*
@@ -216,14 +195,6 @@ router.delete('/:businessid', async function (req, res, next) {
   } else {
     next();
   }
-  /*
-  if (businesses[businessid]) {
-    businesses[businessid] = null;
-    res.status(204).end();
-  } else {
-    next();
-  }
-   */
 });
 
 exports.getBusinessesByOwnerID = getBusinessesByOwnerID;
