@@ -17,6 +17,36 @@ const reviewSchema = {
   review: { required: false }
 };
 
+async function getReviewsCount() {
+  return await global.db
+      .collection('reviews')
+      .countDocuments();
+}
+
+async function getReviewByID(id) {
+  return await global.db
+      .collection('reviews')
+      .findOne({ id: id });
+}
+
+async function deleteReviewByID(id) {
+  return await global.db
+      .collection('reviews')
+      .deleteOne({ id: id });
+}
+
+async function updateReviewByID(id, review) {
+  return await global.db
+      .collection('reviews')
+      .updateOne({ id: id }, { $set: review });
+}
+
+async function addReview(review) {
+  return await global.db
+      .collection('reviews')
+      .insertOne(review);
+}
+
 
 /*
  * Route to create a new review.
