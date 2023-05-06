@@ -141,10 +141,10 @@ router.put('/:reviewID', async function (req, res, next) {
 /*
  * Route to delete a review.
  */
-router.delete('/:reviewID', function (req, res, next) {
+router.delete('/:reviewID', async function (req, res, next) {
   const reviewID = parseInt(req.params.reviewID);
-  if (reviews[reviewID]) {
-    reviews[reviewID] = null;
+  if (await getReviewByID(reviewID) {
+    await deleteReviewByID(reviewID);
     res.status(204).end();
   } else {
     next();
