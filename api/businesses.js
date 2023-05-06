@@ -40,6 +40,24 @@ async function getBusinessesPage(pageNum, numPerPage) {
       .toArray();
 }
 
+async function getBusinessByID(id) {
+  return await global.db
+      .collection('businesses')
+      .findOne({ id: id });
+}
+
+async function deleteBusinessByID(id) {
+  return await global.db
+      .collection('businesses')
+      .deleteOne({ id: id });
+}
+
+async function updateBusinessByID(id, business) {
+  return await global.db
+      .collection('businesses')
+      .updateOne({ id: id }, { $set: business });
+}
+
 /*
  * Route to return a list of businesses.
  */
@@ -113,7 +131,7 @@ router.post('/', async function (req, res, next) {
 /*
  * Route to fetch info about a specific business.
  */
-router.get('/:businessid', function (req, res, next) {
+router.get('/:businessid', async function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
   if (businesses[businessid]) {
     /*
@@ -125,7 +143,7 @@ router.get('/:businessid', function (req, res, next) {
       reviews: reviews.filter(review => review && review.businessid === businessid),
       photos: photos.filter(photo => photo && photo.businessid === businessid)
     };
-    const businessDetails = global.db.collection("businesses").findOne({ id: businessid });
+    const businessDetails = await getBusinessByID(businessid);
     Object.assign(business, businessDetails);
     //Object.assign(business, businesses[businessid]);
     res.status(200).json(business);
@@ -137,11 +155,13 @@ router.get('/:businessid', function (req, res, next) {
 /*
  * Route to replace data for a business.
  */
-router.put('/:businessid', function (req, res, next) {
+router.put('/:businessid', async function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
-  if (global.db.collection("businesses").findOne({ id: businessid })) {
+  if (await getBusinessByID(businessid)) {
     if (validateAgainstSchema(req.body, businessSchema)) {
-      global.db.collection("businesses").updateOne({ id: businessid }, { $set: req.body });
+      const business = extractValidFields(req.body, businessSchema);
+      business.id = businessid;
+      await updateBusinessByID(businessid, business);
       res.status(200).json({
         links: {
           business: `/businesses/${businessid}`
@@ -181,10 +201,10 @@ router.put('/:businessid', function (req, res, next) {
 /*
  * Route to delete a business.
  */
-router.delete('/:businessid', function (req, res, next) {
+router.delete('/:businessid', async function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
-  if (global.db.collection("businesses").findOne({ id: businessid })) {
-    global.db.collection("businesses").deleteOne({ id: businessid });
+  if (await getBusinessByID(businessid)) {
+    await deleteBusinessByID(businessid);
     res.status(204).end();
   } else {
     next();
