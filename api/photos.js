@@ -83,9 +83,9 @@ router.get('/:photoID', async function (req, res, next) {
 /*
  * Route to update a photo.
  */
-router.put('/:photoID', function (req, res, next) {
+router.put('/:photoID', async function (req, res, next) {
   const photoID = parseInt(req.params.photoID);
-  if (photos[photoID]) {
+  if (await getPhotoByID(photoID)) {
 
     if (validateAgainstSchema(req.body, photoSchema)) {
       /*
@@ -93,10 +93,9 @@ router.put('/:photoID', function (req, res, next) {
        * the existing photo.
        */
       const updatedPhoto = extractValidFields(req.body, photoSchema);
-      const existingPhoto = photos[photoID];
+      const existingPhoto = await getPhotoByID(photoID);
       if (existingPhoto && updatedPhoto.businessid === existingPhoto.businessid && updatedPhoto.userid === existingPhoto.userid) {
-        photos[photoID] = updatedPhoto;
-        photos[photoID].id = photoID;
+        await updatePhotoByID(photoID, updatedPhoto);
         res.status(200).json({
           links: {
             photo: `/photos/${photoID}`,
