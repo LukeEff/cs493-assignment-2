@@ -25,12 +25,17 @@ const businessSchema = {
   email: { required: false }
 };
 
-async function getBusinessesPage(page) {
-  const numPerPage = 10;
+async function getBusinessesCount() {
+  return await global.db
+      .collection('businesses')
+      .countDocuments();
+}
+
+async function getBusinessesPage(pageNum, numPerPage) {
   return await global.db
       .collection('businesses')
       .find({})
-      .skip(page * numPerPage)
+      .skip(pageNum * numPerPage)
       .limit(numPerPage)
       .toArray();
 }
@@ -46,7 +51,7 @@ router.get('/', async function (req, res) {
    */
   let page = parseInt(req.query.page) || 1;
   const numPerPage = 10;
-  const lastPage = Math.ceil(businesses.length / numPerPage);
+  const lastPage = Math.ceil(await getBusinessesCount() / numPerPage);
   page = page > lastPage ? lastPage : page;
   page = page < 1 ? 1 : page;
 
@@ -54,10 +59,7 @@ router.get('/', async function (req, res) {
    * Calculate starting and ending indices of businesses on requested page and
    * slice out the corresponsing sub-array of busibesses.
    */
-  const start = (page - 1) * numPerPage;
-  const end = start + numPerPage;
-  const pageBusinesses = await getBusinessesPage(page);
-  //const pageBusinesses = businesses.slice(start, end);
+  const pageBusinesses = await getBusinessesPage(page - 1, numPerPage);
 
   /*
    * Generate HATEOAS links for surrounding pages.
@@ -80,7 +82,7 @@ router.get('/', async function (req, res) {
     pageNumber: page,
     totalPages: lastPage,
     pageSize: numPerPage,
-    totalCount: global.db.collection('businesses').count(),
+    totalCount: await getBusinessesCount(),
     links: links
   });
 
