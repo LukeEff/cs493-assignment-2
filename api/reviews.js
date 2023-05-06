@@ -51,7 +51,7 @@ async function addReview(review) {
 /*
  * Route to create a new review.
  */
-router.post('/', function (req, res, next) {
+router.post('/', async function (req, res, next) {
   if (validateAgainstSchema(req.body, reviewSchema)) {
 
     const review = extractValidFields(req.body, reviewSchema);
@@ -70,8 +70,8 @@ router.post('/', function (req, res, next) {
         error: "User has already posted a review of this business"
       });
     } else {
-      review.id = reviews.length;
-      reviews.push(review);
+      review.id = await getReviewsCount();
+      await addReview(review);
       res.status(201).json({
         id: review.id,
         links: {
