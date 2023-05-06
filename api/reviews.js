@@ -103,9 +103,9 @@ router.get('/:reviewID', async function (req, res, next) {
 /*
  * Route to update a review.
  */
-router.put('/:reviewID', function (req, res, next) {
+router.put('/:reviewID', async function (req, res, next) {
   const reviewID = parseInt(req.params.reviewID);
-  if (reviews[reviewID]) {
+  if (await getReviewByID(reviewID)) {
 
     if (validateAgainstSchema(req.body, reviewSchema)) {
       /*
@@ -113,10 +113,9 @@ router.put('/:reviewID', function (req, res, next) {
        * the existing review.
        */
       let updatedReview = extractValidFields(req.body, reviewSchema);
-      let existingReview = reviews[reviewID];
+      let existingReview = await getReviewByID(reviewID);
       if (updatedReview.businessid === existingReview.businessid && updatedReview.userid === existingReview.userid) {
-        reviews[reviewID] = updatedReview;
-        reviews[reviewID].id = reviewID;
+        await updateReviewByID(reviewID, updatedReview);
         res.status(200).json({
           links: {
             review: `/reviews/${reviewID}`,
