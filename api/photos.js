@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { validateAgainstSchema, extractValidFields } = require('../lib/validation');
 
 const photos = require('../data/photos');
+const {add} = require("nodemon/lib/rules");
 
 exports.router = router;
 exports.photos = photos;
@@ -48,11 +49,11 @@ async function addPhoto(photo) {
 /*
  * Route to create a new photo.
  */
-router.post('/', function (req, res, next) {
+router.post('/', async function (req, res, next) {
   if (validateAgainstSchema(req.body, photoSchema)) {
     const photo = extractValidFields(req.body, photoSchema);
-    photo.id = photos.length;
-    photos.push(photo);
+    photo.id = await getPhotosCount();
+    await addPhoto(photo);
     res.status(201).json({
       id: photo.id,
       links: {
