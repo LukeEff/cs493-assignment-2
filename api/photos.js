@@ -1,11 +1,7 @@
 const router = require('express').Router();
 const { validateAgainstSchema, extractValidFields } = require('../lib/validation');
 
-const photos = require('../data/photos');
-const {add} = require("nodemon/lib/rules");
-
 exports.router = router;
-exports.photos = photos;
 
 /*
  * Schema describing required/optional fields of a photo object.
@@ -88,7 +84,7 @@ router.post('/', async function (req, res, next) {
 router.get('/:photoID', async function (req, res, next) {
   const photoID = parseInt(req.params.photoID);
   if (await getPhotoByID(photoID)) {
-    res.status(200).json(photos[photoID]);
+    res.status(200).json(await getPhotoByID(photoID));
   } else {
     next();
   }
