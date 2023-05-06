@@ -1,12 +1,10 @@
 const router = require('express').Router();
 const { validateAgainstSchema, extractValidFields } = require('../lib/validation');
 
-const businesses = require('../data/businesses');
 const { getReviewsByBusinessID } = require('./reviews');
 const { getPhotosByBusinessID } = require('./photos');
 
 exports.router = router;
-exports.businesses = businesses;
 
 /*
  * Schema describing required/optional fields of a business object.
