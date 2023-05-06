@@ -121,10 +121,10 @@ router.put('/:photoID', async function (req, res, next) {
 /*
  * Route to delete a photo.
  */
-router.delete('/:photoID', function (req, res, next) {
+router.delete('/:photoID', async function (req, res, next) {
   const photoID = parseInt(req.params.photoID);
-  if (photos[photoID]) {
-    photos[photoID] = null;
+  if (await getPhotoByID(photoID)) {
+    await deletePhotoByID(photoID);
     res.status(204).end();
   } else {
     next();
