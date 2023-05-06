@@ -91,9 +91,9 @@ router.post('/', async function (req, res, next) {
 /*
  * Route to fetch info about a specific review.
  */
-router.get('/:reviewID', function (req, res, next) {
+router.get('/:reviewID', async function (req, res, next) {
   const reviewID = parseInt(req.params.reviewID);
-  if (reviews[reviewID]) {
+  if (await getReviewByID(reviewID)) {
     res.status(200).json(reviews[reviewID]);
   } else {
     next();
