@@ -91,10 +91,10 @@ router.get('/', async function (req, res) {
 /*
  * Route to create a new business.
  */
-router.post('/', function (req, res, next) {
+router.post('/', async function (req, res, next) {
   if (validateAgainstSchema(req.body, businessSchema)) {
     const business = extractValidFields(req.body, businessSchema);
-    business.id = businesses.length;
+    business.id = await getBusinessesCount();
     global.db.collection("businesses").insertOne(business);
     // businesses.push(business);
     res.status(201).json({
