@@ -58,6 +58,12 @@ async function updateBusinessByID(id, business) {
       .updateOne({ id: id }, { $set: business });
 }
 
+export async function getBusinessesByOwnerID(id) {
+  return await global.db
+      .collection('businesses')
+      .find({ ownerid: id })
+}
+
 /*
  * Route to return a list of businesses.
  */

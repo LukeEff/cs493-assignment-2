@@ -46,6 +46,13 @@ async function addPhoto(photo) {
       .insertOne(photo);
 }
 
+export async function getPhotosByUserID(id) {
+  return await global.db
+      .collection('photos')
+      .find({ userid: id })
+      .toArray();
+}
+
 /*
  * Route to create a new photo.
  */

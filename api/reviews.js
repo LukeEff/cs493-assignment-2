@@ -47,6 +47,13 @@ async function addReview(review) {
       .insertOne(review);
 }
 
+export async function getReviewsByUserID(id) {
+  return await global.db
+      .collection('reviews')
+      .find({ userid: id })
+      .toArray();
+}
+
 
 /*
  * Route to create a new review.

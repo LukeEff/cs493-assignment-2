@@ -2,16 +2,16 @@ const router = require('express').Router();
 
 exports.router = router;
 
-const { businesses } = require('./businesses');
-const { reviews } = require('./reviews');
-const { photos } = require('./photos');
+const { getBusinessesByOwnerID } = require('./businesses');
+const { getReviewsByUserID } = require('./reviews');
+const { getPhotosByUserID } = require('./photos');
 
 /*
  * Route to list all of a user's businesses.
  */
 router.get('/:userid/businesses', function (req, res) {
   const userid = parseInt(req.params.userid);
-  const userBusinesses = businesses.filter(business => business && business.ownerid === userid);
+  const userBusinesses = getBusinessesByOwnerID(userid);
   res.status(200).json({
     businesses: userBusinesses
   });
