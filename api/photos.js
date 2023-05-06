@@ -15,6 +15,35 @@ const photoSchema = {
   caption: { required: false }
 };
 
+async function getPhotosCount() {
+  return await global.db
+      .collection('photos')
+      .countDocuments();
+}
+
+async function getPhotoByID(id) {
+  return await global.db
+      .collection('photos')
+      .findOne({ id: id });
+}
+
+async function deletePhotoByID(id) {
+  return await global.db
+      .collection('photos')
+      .deleteOne({ id: id });
+}
+
+async function updatePhotoByID(id, photo) {
+  return await global.db
+      .collection('photos')
+      .updateOne({ id: id }, { $set: photo });
+}
+
+async function addPhoto(photo) {
+  return await global.db
+      .collection('photos')
+      .insertOne(photo);
+}
 
 /*
  * Route to create a new photo.
