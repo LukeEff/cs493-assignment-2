@@ -25,10 +25,20 @@ const businessSchema = {
   email: { required: false }
 };
 
+async function getBusinessesPage(page) {
+  const numPerPage = 10;
+  return await global.db
+      .collection('businesses')
+      .find({})
+      .skip(page * numPerPage)
+      .limit(numPerPage)
+      .toArray();
+}
+
 /*
  * Route to return a list of businesses.
  */
-router.get('/', function (req, res) {
+router.get('/', async function (req, res) {
 
   /*
    * Compute page number based on optional query string parameter `page`.
@@ -46,7 +56,8 @@ router.get('/', function (req, res) {
    */
   const start = (page - 1) * numPerPage;
   const end = start + numPerPage;
-  const pageBusinesses = businesses.slice(start, end);
+  const pageBusinesses = await getBusinessesPage(page);
+  //const pageBusinesses = businesses.slice(start, end);
 
   /*
    * Generate HATEOAS links for surrounding pages.
@@ -69,7 +80,7 @@ router.get('/', function (req, res) {
     pageNumber: page,
     totalPages: lastPage,
     pageSize: numPerPage,
-    totalCount: businesses.length,
+    totalCount: global.db.collection('businesses').count(),
     links: links
   });
 
@@ -82,7 +93,8 @@ router.post('/', function (req, res, next) {
   if (validateAgainstSchema(req.body, businessSchema)) {
     const business = extractValidFields(req.body, businessSchema);
     business.id = businesses.length;
-    businesses.push(business);
+    global.db.collection("businesses").insertOne(business);
+    // businesses.push(business);
     res.status(201).json({
       id: business.id,
       links: {
@@ -111,7 +123,9 @@ router.get('/:businessid', function (req, res, next) {
       reviews: reviews.filter(review => review && review.businessid === businessid),
       photos: photos.filter(photo => photo && photo.businessid === businessid)
     };
-    Object.assign(business, businesses[businessid]);
+    const businessDetails = global.db.collection("businesses").findOne({ id: businessid });
+    Object.assign(business, businessDetails);
+    //Object.assign(business, businesses[businessid]);
     res.status(200).json(business);
   } else {
     next();
@@ -123,6 +137,23 @@ router.get('/:businessid', function (req, res, next) {
  */
 router.put('/:businessid', function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
+  if (global.db.collection("businesses").findOne({ id: businessid })) {
+    if (validateAgainstSchema(req.body, businessSchema)) {
+      global.db.collection("businesses").updateOne({ id: businessid }, { $set: req.body });
+      res.status(200).json({
+        links: {
+          business: `/businesses/${businessid}`
+        }
+      });
+    } else {
+      res.status(400).json({
+        error: "Request body is not a valid business object"
+      });
+    }
+  } else {
+    next();
+  }
+  /*
   if (businesses[businessid]) {
 
     if (validateAgainstSchema(req.body, businessSchema)) {
@@ -142,6 +173,7 @@ router.put('/:businessid', function (req, res, next) {
   } else {
     next();
   }
+   */
 });
 
 /*
@@ -149,10 +181,18 @@ router.put('/:businessid', function (req, res, next) {
  */
 router.delete('/:businessid', function (req, res, next) {
   const businessid = parseInt(req.params.businessid);
+  if (global.db.collection("businesses").findOne({ id: businessid })) {
+    global.db.collection("businesses").deleteOne({ id: businessid });
+    res.status(204).end();
+  } else {
+    next();
+  }
+  /*
   if (businesses[businessid]) {
     businesses[businessid] = null;
     res.status(204).end();
   } else {
     next();
   }
+   */
 });
