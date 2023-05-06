@@ -1,10 +1,7 @@
 const router = require('express').Router();
 const { validateAgainstSchema, extractValidFields } = require('../lib/validation');
 
-const reviews = require('../data/reviews');
-
 exports.router = router;
-exports.reviews = reviews;
 
 /*
  * Schema describing required/optional fields of a review object.
@@ -61,6 +58,11 @@ const getReviewsByBusinessID = async (id) => {
       .toArray();
 }
 
+async function hasUserReviewedBusiness(userid, businessid) {
+  const reviews = await getReviewsByBusinessID(businessid);
+  return reviews.some(review => review.userid === userid);
+}
+
 
 /*
  * Route to create a new review.
@@ -70,16 +72,7 @@ router.post('/', async function (req, res, next) {
 
     const review = extractValidFields(req.body, reviewSchema);
 
-    /*
-     * Make sure the user is not trying to review the same business twice.
-     */
-    const userReviewedThisBusinessAlready = reviews.some(
-      existingReview => existingReview
-        && existingReview.ownerid === review.ownerid
-        && existingReview.businessid === review.businessid
-    );
-
-    if (userReviewedThisBusinessAlready) {
+    if (await hasUserReviewedBusiness(review.userid, review.businessid)) {
       res.status(403).json({
         error: "User has already posted a review of this business"
       });
@@ -108,7 +101,7 @@ router.post('/', async function (req, res, next) {
 router.get('/:reviewID', async function (req, res, next) {
   const reviewID = parseInt(req.params.reviewID);
   if (await getReviewByID(reviewID)) {
-    res.status(200).json(reviews[reviewID]);
+    res.status(200).json(await getReviewByID(reviewID));
   } else {
     next();
   }
