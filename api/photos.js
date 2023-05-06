@@ -71,9 +71,9 @@ router.post('/', async function (req, res, next) {
 /*
  * Route to fetch info about a specific photo.
  */
-router.get('/:photoID', function (req, res, next) {
+router.get('/:photoID', async function (req, res, next) {
   const photoID = parseInt(req.params.photoID);
-  if (photos[photoID]) {
+  if (await getPhotoByID(photoID)) {
     res.status(200).json(photos[photoID]);
   } else {
     next();
